@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#10241a">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="筋トレ管理">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>筋トレ＆サプリ管理</title>
+<style>
+:root{
+  --bg:#0c1713;
+  --bg2:#10241a;
+  --card:#15281f;
+  --card2:#1b332877;
+  --line:#26443599;
+  --green:#2fae6b;
+  --green-d:#1F5230;
+  --orange:#ff7a3c;
+  --orange-d:#D84818;
+  --txt:#eaf4ee;
+  --txt2:#9fc3ad;
+  --txt3:#6f9180;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI","Segoe UI",sans-serif;}
+body{max-width:480px;margin:0 auto;padding-bottom:84px;min-height:100vh;background:
+  radial-gradient(120% 60% at 50% 0%, #15302180 0%, transparent 60%), var(--bg);}
+/* header */
+header{padding:18px 18px 10px;position:sticky;top:0;z-index:20;
+  background:linear-gradient(180deg,var(--bg) 70%,transparent);}
+.hd-top{display:flex;justify-content:space-between;align-items:flex-end;}
+.hd-date{font-size:13px;color:var(--txt2);}
+.hd-title{font-size:22px;font-weight:800;letter-spacing:.02em;margin-top:2px;}
+.hd-title b{color:var(--green);}
+.hd-prof{font-size:11px;color:var(--txt3);background:var(--card2);
+  border:1px solid var(--line);padding:5px 10px;border-radius:20px;}
+/* progress ring-ish bar */
+.daybar{margin-top:14px;background:var(--card);border:1px solid var(--line);
+  border-radius:16px;padding:13px 15px;display:flex;align-items:center;gap:13px;}
+.daybar .ring{width:46px;height:46px;border-radius:50%;flex:0 0 auto;
+  background:conic-gradient(var(--green) var(--p,0%), #21392e 0);
+  display:flex;align-items:center;justify-content:center;}
+.daybar .ring i{width:36px;height:36px;border-radius:50%;background:var(--card);
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;font-style:normal;color:var(--green);}
+.daybar .lbl{flex:1;}
+.daybar .lbl b{font-size:15px;display:block;}
+.daybar .lbl span{font-size:12px;color:var(--txt2);}
+.daybar .tag{font-size:11px;font-weight:700;padding:5px 11px;border-radius:20px;}
+/* sections */
+main{padding:4px 14px 0;}
+.sec-h{font-size:13px;font-weight:700;color:var(--txt2);margin:22px 4px 9px;
+  display:flex;align-items:center;gap:7px;text-transform:uppercase;letter-spacing:.06em;}
+.sec-h::before{content:"";width:4px;height:14px;border-radius:3px;background:var(--orange);}
+/* timeline */
+.tl{position:relative;padding-left:6px;}
+.item{display:flex;gap:12px;padding:2px 0 14px;position:relative;}
+.item::before{content:"";position:absolute;left:13px;top:26px;bottom:-4px;width:2px;background:var(--line);}
+.item:last-child::before{display:none;}
+.dot{flex:0 0 auto;width:28px;height:28px;border-radius:9px;background:var(--card);
+  border:1px solid var(--line);display:flex;align-items:center;justify-content:center;
+  font-size:14px;z-index:2;margin-top:2px;}
+.time{font-size:11px;color:var(--txt3);font-weight:700;}
+.card{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:11px 13px;transition:.15s;}
+.card.done{opacity:.5;}
+.card .t{display:flex;align-items:center;gap:9px;}
+.chk{width:21px;height:21px;border-radius:7px;border:2px solid var(--txt3);flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;transition:.15s;}
+.chk.on{background:var(--green);border-color:var(--green);}
+.card .ttl{font-size:14px;font-weight:700;flex:1;}
+.card.done .ttl{text-decoration:line-through;}
+.card .desc{font-size:12px;color:var(--txt2);margin-top:6px;line-height:1.6;padding-left:30px;}
+.pill{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-right:5px;margin-top:5px;}
+.p-pro{background:#1c3a52;color:#7fc7ff;}
+.p-sup{background:#3a2c12;color:#ffc06b;}
+.p-tr{background:#3a1c2e;color:#ff8fc0;}
+.p-food{background:#22351d;color:#a7e08a;}
+/* training exercises */
+.ex{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:9px;}
+.ex .exh{display:flex;justify-content:space-between;align-items:center;}
+.ex .exn{font-size:14px;font-weight:700;}
+.ex .exs{font-size:12px;color:var(--orange);font-weight:800;background:#3a1c0e;padding:3px 10px;border-radius:20px;}
+.ex .exd{font-size:11.5px;color:var(--txt2);margin-top:7px;line-height:1.6;}
+.ex .target{font-size:10px;color:var(--txt3);margin-top:6px;}
+.rest-day{background:linear-gradient(135deg,#15302180,var(--card));border:1px solid var(--line);
+  border-radius:16px;padding:24px 18px;text-align:center;}
+.rest-day .ic{font-size:34px;}
+.rest-day b{display:block;font-size:16px;margin:8px 0 4px;}
+.rest-day span{font-size:12px;color:var(--txt2);line-height:1.6;}
+/* week selector */
+.weekrow{display:flex;gap:6px;overflow-x:auto;padding:2px 0 6px;margin:0 -2px;}
+.weekrow::-webkit-scrollbar{display:none;}
+.wbtn{flex:0 0 auto;min-width:60px;text-align:center;background:var(--card);border:1px solid var(--line);
+  border-radius:12px;padding:9px 6px;cursor:pointer;transition:.15s;}
+.wbtn.active{background:var(--green-d);border-color:var(--green);}
+.wbtn .wd{font-size:11px;color:var(--txt2);}
+.wbtn.active .wd{color:#cdebd9;}
+.wbtn .wt{font-size:11px;font-weight:800;margin-top:3px;}
+.wbtn .wt.t-push{color:#7fc7ff;}.wbtn .wt.t-leg{color:#ffb86b;}
+.wbtn .wt.t-pull{color:#ff8fc0;}.wbtn .wt.t-core{color:#a7e08a;}
+.wbtn .wt.t-rest{color:var(--txt3);}
+.wbtn.active .wt{color:#fff !important;}
+/* generic info card */
+.info{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;margin-bottom:10px;}
+.info .ih{font-size:14px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.info .ico{font-size:18px;}
+.info table{width:100%;border-collapse:collapse;font-size:12px;}
+.info td{padding:7px 4px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5;}
+.info tr:last-child td{border-bottom:none;}
+.info td:first-child{color:var(--txt);font-weight:700;width:34%;}
+.info td:last-child{color:var(--txt2);}
+.note{font-size:11.5px;color:var(--txt2);line-height:1.7;}
+.warn{background:#2a1a0e;border:1px solid #5a3a1e;border-radius:14px;padding:12px 14px;
+  font-size:11.5px;color:#ffcaa0;line-height:1.7;margin-bottom:10px;}
+.warn b{color:#ffb380;}
+.macro{display:flex;gap:8px;margin-bottom:10px;}
+.macro .m{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center;}
+.macro .m .mv{font-size:19px;font-weight:800;color:var(--green);}
+.macro .m .mv.o{color:var(--orange);}
+.macro .m .ml{font-size:10px;color:var(--txt2);margin-top:3px;}
+/* nav */
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;
+  background:#0e1d16ee;backdrop-filter:blur(12px);border-top:1px solid var(--line);
+  display:flex;z-index:30;padding-bottom:env(safe-area-inset-bottom);}
+nav button{flex:1;background:none;border:none;color:var(--txt3);padding:11px 0 13px;
+  font-size:10px;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;}
+nav button .ni{font-size:20px;}
+nav button.active{color:var(--green);}
+.page{display:none;}
+.page.active{display:block;animation:fade .25s;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.reset{font-size:11px;color:var(--txt3);text-align:center;margin:20px 0 6px;}
+.reset span{text-decoration:underline;cursor:pointer;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hd-top">
+    <div>
+      <div class="hd-date" id="dateLbl">—</div>
+      <div class="hd-title">筋トレ&<b>サプリ</b>管理</div>
+    </div>
+    <div class="hd-prof">171cm / 64kg</div>
+  </div>
+  <div class="daybar">
+    <div class="ring" id="ring"><i id="ringTxt">0%</i></div>
+    <div class="lbl">
+      <b id="dayTitle">今日のメニュー</b>
+      <span id="dayProgress">タスク 0/0 完了</span>
+    </div>
+    <div class="tag" id="dayTag">—</div>
+  </div>
+</header>
+
+<main>
+<!-- ============ TODAY ============ -->
+<section class="page active" id="page-today">
+  <div class="sec-h">今日の流れ</div>
+  <div class="tl" id="timeline"></div>
+  <div class="reset"><span onclick="resetDay()">今日のチェックをリセット</span></div>
+</section>
+
+<!-- ============ TRAINING ============ -->
+<section class="page" id="page-train">
+  <div class="sec-h">週間プラン（自重）</div>
+  <div class="weekrow" id="weekrow"></div>
+  <div id="trainDetail"></div>
+  <div class="info" style="margin-top:14px;">
+    <div class="ih"><span class="ico">📈</span>伸ばし方（漸進性過負荷）</div>
+    <div class="note">
+    自重は「重さ」を足せないので、次の順で負荷を上げます。<br>
+    ① 各種目で目標レップの上限まで楽にできる →<br>
+    ② テンポを落とす（下ろし3秒）→<br>
+    ③ 可動域を広げる／片足・片手など難易度の高い種目へ →<br>
+    ④ セット数 or レップ数を増やす。<br><br>
+    「あと2回はできた」で毎セット止めると成長します。週ごとに合計レップ数をメモするのがおすすめ。
+    </div>
+  </div>
+</section>
+
+<!-- ============ SUPPLEMENTS ============ -->
+<section class="page" id="page-supp">
+  <div class="sec-h">サプリ一覧と量</div>
+  <div class="info">
+    <div class="ih"><span class="ico">💊</span>毎日のサプリ</div>
+    <table>
+      <tr><td>ホエイプロテイン</td><td>1回 タンパク質25〜30g（約1スクープ）× 2回／朝・トレ後</td></tr>
+      <tr><td>クレアチン<br><span style="color:var(--orange);font-size:10px;">★最優先で追加</span></td><td>毎日3〜5g。タイミングは不問、<b>毎日欠かさず</b>飲むことが全て。飲み始めは水分で1〜2kg増えるが脂肪ではない</td></tr>
+      <tr><td>マルチビタミン</td><td>規定量／夜の食事と一緒（脂溶性を含むため空腹時より吸収が良い）</td></tr>
+      <tr><td>オメガ3<br>(EPA/DHA)</td><td>EPA+DHA 合計1〜2g／夜の食事と一緒。回復・関節・炎症対策</td></tr>
+      <tr><td>ビタミンD3</td><td>2000〜4000IU／夜の食事と一緒。室内中心なら不足しやすい</td></tr>
+      <tr><td>マグネシウム<br><span style="color:var(--txt3);font-size:10px;">任意</span></td><td>200〜400mg／就寝前。睡眠の質・筋肉の攣り対策</td></tr>
+      <tr><td>電解質・塩<br><span style="color:var(--txt3);font-size:10px;">任意</span></td><td>断食時間が長いので、日中の水に少量。だるさ・頭痛対策</td></tr>
+    </table>
+  </div>
+  <div class="warn">
+    <b>正直なところ：</b>「1日1食」と「筋肥大（増量）」はやや相反します。筋肉を増やすには軽いカロリー超過（+200〜300kcal）とタンパク質120〜140g/日が必要。1食＋シェイク2杯でこれを取り切るには、夜は<b>高カロリー・高タンパクな食事</b>を意識してください。朝・トレ後のホエイがそれを補います。
+  </div>
+  <div class="warn">
+    持病・服薬がある場合、クレアチンや高用量ビタミンを始める前に医師へ確認を。腎機能に不安がある人は特に。
+  </div>
+</section>
+
+<!-- ============ MEAL ============ -->
+<section class="page" id="page-meal">
+  <div class="sec-h">食事・栄養の目安</div>
+  <div class="macro">
+    <div class="m"><div class="mv">約2600</div><div class="ml">kcal/日（増量）</div></div>
+    <div class="m"><div class="mv o">120〜140</div><div class="ml">タンパク質 g/日</div></div>
+    <div class="m"><div class="mv">2〜3L</div><div class="ml">水/日</div></div>
+  </div>
+  <div class="info">
+    <div class="ih"><span class="ico">🍽️</span>1日のタンパク質配分（例）</div>
+    <table>
+      <tr><td>朝 ホエイ</td><td>約25〜30g</td></tr>
+      <tr><td>トレ後 ホエイ</td><td>約25〜30g</td></tr>
+      <tr><td>夜の主食</td><td>約60〜80g（肉・魚・卵・大豆をしっかり）</td></tr>
+      <tr><td>合計</td><td><b>約120〜140g</b>（体重64kg × 約2g）</td></tr>
+    </table>
+  </div>
+  <div class="info">
+    <div class="ih"><span class="ico">🥩</span>夜の主食で優先する食材</div>
+    <div class="note">
+    ・タンパク源：鶏もも/胸・牛赤身・卵2〜3個・鮭/サバ・豆腐や納豆<br>
+    ・炭水化物（増量に必須）：米しっかり・さつまいも・オートミール<br>
+    ・脂質（ホルモン・ビタミン吸収）：卵黄・ナッツ・オリーブ油・青魚<br>
+    ・野菜：色の濃い野菜＋きのこで食物繊維とビタミン<br><br>
+    1食で量が入らない時は、米を増やす／オリーブ油やナッツで“質の良いカロリー”を足すと超過を作りやすい。
+    </div>
+  </div>
+  <div class="info">
+    <div class="ih"><span class="ico">⏱️</span>断食中（日中）にOKなもの</div>
+    <div class="note">水・炭酸水・ブラックコーヒー・お茶・電解質。トレ前の集中力アップにブラックコーヒーは◎。</div>
+  </div>
+</section>
+</main>
+
+<nav>
+  <button class="active" data-p="today"><span class="ni">📅</span>今日</button>
+  <button data-p="train"><span class="ni">🏋️</span>トレ</button>
+  <button data-p="supp"><span class="ni">💊</span>サプリ</button>
+  <button data-p="meal"><span class="ni">🍽️</span>食事</button>
+</nav>
+
+<script>
+/* ===== 週間トレーニング定義 ===== 0=日 .. 6=土 */
+const WEEK = {
+  1:{key:"push",name:"プッシュ（胸・肩・三頭）",cls:"t-push",tag:"上半身・押す",tagcol:"#1c3a52,#7fc7ff",
+     ex:[
+      {n:"ノーマル腕立て伏せ",s:"3×10〜15",d:"肩幅より少し広く。胸を床ギリギリまで。下ろし2秒・上げ1秒。",t:"大胸筋・三頭"},
+      {n:"パイクプッシュアップ",s:"3×8〜12",d:"腰を高く上げ逆V字。頭を床へ。肩を真上に押す意識。",t:"肩（三角筋）"},
+      {n:"ディップス（椅子）",s:"3×8〜12",d:"椅子2脚 or 椅子の縁。肘を曲げて体を沈め、押し上げる。",t:"三頭・下部胸"},
+      {n:"ダイヤモンド腕立て",s:"2×8〜12",d:"両手で菱形を作り胸の下に。三頭に効く。膝つきでもOK。",t:"三頭筋"},
+      {n:"ナロー→ワイド連続",s:"2×限界",d:"仕上げ。フォーム維持できる範囲で限界まで。",t:"胸全体"}
+     ]},
+  2:{key:"leg",name:"レッグ（脚・臀部）",cls:"t-leg",tag:"下半身",tagcol:"#3a2c12,#ffc06b",
+     ex:[
+      {n:"スクワット",s:"4×15〜20",d:"太ももが床と平行まで。かかと重心、膝はつま先方向。下ろし2秒。",t:"大腿四頭・臀部"},
+      {n:"ブルガリアンスクワット",s:"3×10〜12/脚",d:"後ろ足を椅子に。前足1本で沈む。きつければ最強種目。",t:"臀部・大腿"},
+      {n:"ランジ（前後）",s:"3×10/脚",d:"大きく踏み出し膝を沈める。歩きながらでも可。",t:"脚全体・バランス"},
+      {n:"片足ヒップリフト",s:"3×12/脚",d:"仰向け、片足を上げ尻を持ち上げる。お尻を強く締める。",t:"臀部・ハム"},
+      {n:"カーフレイズ",s:"3×20〜25",d:"つま先立ち。段差で可動域を最大に。最上点で1秒静止。",t:"ふくらはぎ"}
+     ]},
+  4:{key:"pull",name:"プル（背中・二頭）",cls:"t-pull",tag:"上半身・引く",tagcol:"#3a1c2e,#ff8fc0",
+     ex:[
+      {n:"テーブルロウ（斜め懸垂）",s:"3×8〜12",d:"丈夫な机の下に潜り縁を握り胸を引き上げる。タオルをドアに挟んでも可。",t:"背中（広背筋）"},
+      {n:"懸垂 ※バーがあれば",s:"3×限界",d:"バーや鉄棒があれば最優先。なければテーブルロウで代用。",t:"広背筋・二頭"},
+      {n:"スーパーマン",s:"3×15",d:"うつ伏せで手脚を同時に持ち上げ背中を反る。2秒キープ。",t:"脊柱起立筋"},
+      {n:"リバーススノーエンジェル",s:"3×15",d:"うつ伏せで腕を床スレスレに大きく回す。肩甲骨を寄せる。",t:"僧帽・後肩"},
+      {n:"タオルカール",s:"3×12",d:"タオルを足で踏み両手で引く（自分で抵抗）。二頭に効かせる。",t:"上腕二頭筋"}
+     ]},
+  5:{key:"core",name:"コア＋全身",cls:"t-core",tag:"体幹・全身",tagcol:"#22351d,#a7e08a",
+     ex:[
+      {n:"プランク",s:"3×40〜60秒",d:"肘とつま先で一直線。腰を落とさない・上げない。",t:"腹横筋・体幹"},
+      {n:"レッグレイズ",s:"3×12〜15",d:"仰向けで脚を上げ下げ。腰を反らさず腹下部を意識。",t:"腹直筋下部"},
+      {n:"マウンテンクライマー",s:"3×30秒",d:"腕立て姿勢で膝を交互に胸へ。心肺＋体幹。",t:"体幹・有酸素"},
+      {n:"バイシクルクランチ",s:"3×20",d:"肘と逆膝を近づけ捻る。ゆっくり効かせる。",t:"腹斜筋"},
+      {n:"バーピー",s:"3×10",d:"仕上げの全身。しゃがむ→腕立て→ジャンプ。",t:"全身・脂肪燃焼"}
+     ]},
+  3:{key:"rest",name:"アクティブレスト",cls:"t-rest",rest:true,
+     msg:"軽いウォーキング20〜30分・ストレッチ・入浴で回復。栄養とサプリは通常どおり。"},
+  6:{key:"rest",name:"軽い有酸素 or 休養",cls:"t-rest",rest:true,
+     msg:"散歩・ストレッチ程度。疲れていれば完全休養でOK。"},
+  0:{key:"rest",name:"完全休養",cls:"t-rest",rest:true,
+     msg:"しっかり休む。睡眠7〜8時間を確保。回復こそ筋肥大のカギ。"}
+};
+const WD = ["日","月","火","水","木","金","土"];
+
+/* ===== 今日のタイムライン（トレ有無で分岐） ===== */
+function buildTimeline(dow){
+  const isTrain = !WEEK[dow].rest;
+  const trName = WEEK[dow].name;
+  const items = [
+    {time:"起床後",ic:"🌅",ttl:"ホエイ ＋ クレアチン",cat:"pro",
+     desc:"ホエイ1杯（タンパク質25〜30g）＋ クレアチン3〜5g。コップ2杯の水も。",pills:[["朝のタンパク質","p-pro"],["クレアチン","p-sup"]]},
+    {time:"日中",ic:"💧",ttl:"水分・電解質",cat:"food",
+     desc:"水2〜3L目標。ブラックコーヒー/お茶OK。だるい時は塩・電解質を少し。",pills:[["断食中OK","p-food"]]},
+  ];
+  if(isTrain){
+    items.push(
+     {time:"トレ前",ic:"☕",ttl:"トレ準備",cat:"tr",
+      desc:"集中力UPにブラックコーヒー（任意）。5分ウォームアップ（その場足踏み・肩回し）。",pills:[["準備","p-tr"]]},
+     {time:"夕方",ic:"🏋️",ttl:"本日のトレ："+trName,cat:"tr",
+      desc:"「トレ」タブで種目を確認。各セット“あと2回”で止める。所要25〜35分。",pills:[["筋トレ","p-tr"]]},
+     {time:"トレ後",ic:"🥤",ttl:"ホエイ（トレ後30分以内）",cat:"pro",
+      desc:"ホエイ1杯（タンパク質25〜30g）。回復と合成のスイッチ。",pills:[["トレ後タンパク質","p-pro"]]}
+    );
+  }else{
+    items.push(
+     {time:"日中",ic:"🚶",ttl:"アクティブレスト",cat:"tr",
+      desc:WEEK[dow].msg,pills:[["回復","p-tr"]]},
+     {time:"夕方",ic:"🥤",ttl:"ホエイ 2杯目",cat:"pro",
+      desc:"トレが無い日も1日2杯でタンパク質を確保。",pills:[["タンパク質","p-pro"]]}
+    );
+  }
+  items.push(
+   {time:"夜・主食",ic:"🍽️",ttl:"メインの食事（1日1食）",cat:"food",
+    desc:"タンパク質60〜80g＋米しっかり＋良質な脂質＋野菜。増量はここで作る。詳細は「食事」タブ。",pills:[["高タンパク","p-food"],["増量カロリー","p-food"]]},
+   {time:"夜・主食",ic:"💊",ttl:"マルチ＋オメガ3＋ビタミンD",cat:"sup",
+    desc:"脂溶性なので食事と一緒に。マルチ規定量／オメガ3 1〜2g／D3 2000〜4000IU。",pills:[["食後サプリ","p-sup"]]},
+   {time:"就寝前",ic:"🌙",ttl:"マグネシウム（任意）＋睡眠",cat:"sup",
+    desc:"Mg 200〜400mgで睡眠の質UP。7〜8時間睡眠が筋肥大の最重要ポイント。",pills:[["回復","p-sup"]]}
+  );
+  return items;
+}
+
+/* ===== 状態管理（localStorage・日付ごと） ===== */
+const todayKey = ()=>"fit_"+new Date().toISOString().slice(0,10);
+let state = JSON.parse(localStorage.getItem(todayKey())||"{}");
+function save(){localStorage.setItem(todayKey(),JSON.stringify(state));}
+
+function renderToday(){
+  const now=new Date();
+  const dow=now.getDay();
+  document.getElementById("dateLbl").textContent =
+    `${now.getMonth()+1}月${now.getDate()}日（${WD[dow]}）`;
+  const w=WEEK[dow];
+  document.getElementById("dayTitle").textContent = w.rest? w.name : w.name;
+  const tag=document.getElementById("dayTag");
+  if(w.rest){tag.textContent="休養日";tag.style.background="#21392e";tag.style.color="#9fc3ad";}
+  else{const c=w.tagcol.split(",");tag.textContent=w.tag;tag.style.background=c[0];tag.style.color=c[1];}
+
+  const items=buildTimeline(dow);
+  const tl=document.getElementById("timeline");
+  tl.innerHTML="";
+  items.forEach((it,i)=>{
+    const id="t"+i;
+    const done=!!state[id];
+    const pills=(it.pills||[]).map(p=>`<span class="pill ${p[1]}">${p[0]}</span>`).join("");
+    tl.insertAdjacentHTML("beforeend",`
+      <div class="item">
+        <div class="dot">${it.ic}</div>
+        <div style="flex:1">
+          <div class="time">${it.time}</div>
+          <div class="card ${done?'done':''}" data-id="${id}" onclick="toggle('${id}')">
+            <div class="t">
+              <div class="chk ${done?'on':''}">${done?'✓':''}</div>
+              <div class="ttl">${it.ttl}</div>
+            </div>
+            <div class="desc">${it.desc}${pills?'<br>'+pills:''}</div>
+          </div>
+        </div>
+      </div>`);
+  });
+  updateRing(items.length);
+}
+function toggle(id){state[id]=!state[id];save();
+  const total=document.querySelectorAll("#timeline .card").length;
+  const c=document.querySelector(`.card[data-id="${id}"]`);
+  c.classList.toggle("done",state[id]);
+  c.querySelector(".chk").classList.toggle("on",state[id]);
+  c.querySelector(".chk").textContent=state[id]?"✓":"";
+  updateRing(total);
+}
+function updateRing(total){
+  let done=0;for(let i=0;i<total;i++)if(state["t"+i])done++;
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById("ring").style.setProperty("--p",pct+"%");
+  document.getElementById("ringTxt").textContent=pct+"%";
+  document.getElementById("dayProgress").textContent=`タスク ${done}/${total} 完了`;
+}
+function resetDay(){state={};save();renderToday();}
+
+/* ===== トレーニングタブ ===== */
+let selDay=new Date().getDay();
+function renderWeek(){
+  const wr=document.getElementById("weekrow");
+  wr.innerHTML="";
+  for(let i=1;i<=7;i++){const d=i%7; // 月..日
+    const w=WEEK[d];
+    const short=w.rest?"休":(w.key==="push"?"押":w.key==="leg"?"脚":w.key==="pull"?"引":"体");
+    wr.insertAdjacentHTML("beforeend",`
+      <div class="wbtn ${d===selDay?'active':''}" onclick="selDay=${d};renderWeek();renderTrain();">
+        <div class="wd">${WD[d]}</div>
+        <div class="wt ${w.cls}">${short}</div>
+      </div>`);
+  }
+}
+function renderTrain(){
+  const w=WEEK[selDay];
+  const box=document.getElementById("trainDetail");
+  if(w.rest){
+    box.innerHTML=`<div class="rest-day"><div class="ic">😴</div><b>${w.name}</b><span>${w.msg}</span></div>`;
+    return;
+  }
+  let h=`<div style="font-size:15px;font-weight:800;margin:4px 2px 10px;">${WD[selDay]}曜：${w.name}</div>`;
+  w.ex.forEach(e=>{
+    h+=`<div class="ex">
+      <div class="exh"><div class="exn">${e.n}</div><div class="exs">${e.s}</div></div>
+      <div class="exd">${e.d}</div>
+      <div class="target">🎯 ${e.t}</div>
+    </div>`;
+  });
+  h+=`<div class="note" style="margin:10px 4px;color:var(--txt3);">セット間休憩 60〜90秒／全体ウォームアップ5分・終わりにストレッチ。</div>`;
+  box.innerHTML=h;
+}
+
+/* ===== ナビ ===== */
+document.querySelectorAll("nav button").forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    document.getElementById("page-"+b.dataset.p).classList.add("active");
+    window.scrollTo(0,0);
+  };
+});
+
+renderToday();renderWeek();renderTrain();
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(){});}
+</script>
+</body>
+</html>
