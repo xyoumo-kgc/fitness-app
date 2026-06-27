@@ -135,6 +135,25 @@ nav button.active{color:var(--green);}
 @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
 .reset{font-size:11px;color:var(--txt3);text-align:center;margin:20px 0 6px;}
 .reset span{text-decoration:underline;cursor:pointer;}
+/* history */
+.hcard{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:9px;overflow:hidden;}
+.hrow{display:flex;align-items:center;gap:13px;padding:12px 14px;cursor:pointer;}
+.hpct{width:42px;height:42px;border-radius:50%;flex:0 0 auto;
+  background:conic-gradient(var(--green) var(--p,0%), #21392e 0);
+  display:flex;align-items:center;justify-content:center;}
+.hpct i{width:32px;height:32px;border-radius:50%;background:var(--card);
+  display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;font-style:normal;color:var(--green);}
+.hinfo{flex:1;}
+.hinfo b{font-size:14px;display:block;}
+.hinfo span{font-size:11.5px;color:var(--txt2);}
+.todaytag{font-size:9px;font-weight:700;background:var(--orange-d);color:#fff;padding:1px 7px;border-radius:20px;margin-left:6px;vertical-align:middle;}
+.harr{color:var(--txt3);font-size:13px;}
+.hdetail{display:none;}
+.hdetail.open{display:block;padding:2px 14px 12px;border-top:1px solid var(--line);}
+.hitem{display:flex;align-items:center;gap:9px;padding:6px 2px;font-size:12.5px;color:var(--txt3);}
+.hitem.on{color:var(--txt);}
+.hchk{width:18px;text-align:center;color:var(--txt3);font-weight:800;}
+.hitem.on .hchk{color:var(--green);}
 </style>
 </head>
 <body>
@@ -238,6 +257,13 @@ nav button.active{color:var(--green);}
     <div class="note">水・炭酸水・ブラックコーヒー・お茶・電解質。トレ前の集中力アップにブラックコーヒーは◎。</div>
   </div>
 </section>
+
+<!-- ============ HISTORY ============ -->
+<section class="page" id="page-hist">
+  <div class="sec-h">記録の履歴</div>
+  <div class="note" style="margin:0 4px 12px;color:var(--txt3);">日付をタップすると、その日のチェック内容を見返せます。1日の区切りは朝5時です。</div>
+  <div id="histList"></div>
+</section>
 </main>
 
 <nav>
@@ -245,6 +271,7 @@ nav button.active{color:var(--green);}
   <button data-p="train"><span class="ni">🏋️</span>トレ</button>
   <button data-p="supp"><span class="ni">💊</span>サプリ</button>
   <button data-p="meal"><span class="ni">🍽️</span>食事</button>
+  <button data-p="hist"><span class="ni">📖</span>履歴</button>
 </nav>
 
 <script>
@@ -296,49 +323,50 @@ function buildTimeline(dow){
   const isTrain = !WEEK[dow].rest;
   const trName = WEEK[dow].name;
   const items = [
-    {time:"起床後",ic:"🌅",ttl:"ホエイ ＋ クレアチン",cat:"pro",
-     desc:"ホエイ1杯（タンパク質25〜30g）＋ クレアチン3〜5g。コップ2杯の水も。",pills:[["朝のタンパク質","p-pro"],["クレアチン","p-sup"]]},
-    {time:"日中",ic:"💧",ttl:"水分・電解質",cat:"food",
-     desc:"水2〜3L目標。ブラックコーヒー/お茶OK。だるい時は塩・電解質を少し。",pills:[["断食中OK","p-food"]]},
+    {time:"7:00 起床後",ic:"🌅",ttl:"プロテイン＋クレアチン3錠",cat:"pro",
+     desc:"ホエイ1杯（タンパク質25〜30g）＋クレアチン3錠。コップ2杯の水も一緒に。",pills:[["プロテイン","p-pro"],["クレアチン3錠","p-sup"]]},
+    {time:"日中",ic:"💧",ttl:"水分 2〜3L",cat:"food",
+     desc:"こまめに水分補給。クレアチンは水分を筋肉に引き込むので多めに。お茶・ブラックコーヒーもOK。",pills:[["水分","p-food"]]},
+    {time:"12:30 昼",ic:"🥤",ttl:"プロテイン＋クレアチン3錠",cat:"pro",
+     desc:"ホエイ1杯＋クレアチン3錠。朝から約5時間あけてタンパク質を補給。",pills:[["プロテイン","p-pro"],["クレアチン3錠","p-sup"]]},
   ];
   if(isTrain){
     items.push(
-     {time:"トレ前",ic:"☕",ttl:"トレ準備",cat:"tr",
+     {time:"18:00頃 トレ前",ic:"☕",ttl:"トレ準備",cat:"tr",
       desc:"集中力UPにブラックコーヒー（任意）。5分ウォームアップ（その場足踏み・肩回し）。",pills:[["準備","p-tr"]]},
-     {time:"夕方",ic:"🏋️",ttl:"本日のトレ："+trName,cat:"tr",
-      desc:"「トレ」タブで種目を確認。各セット“あと2回”で止める。所要25〜35分。",pills:[["筋トレ","p-tr"]]},
-     {time:"トレ後",ic:"🥤",ttl:"ホエイ（トレ後30分以内）",cat:"pro",
-      desc:"ホエイ1杯（タンパク質25〜30g）。回復と合成のスイッチ。",pills:[["トレ後タンパク質","p-pro"]]}
+     {time:"18:00 トレ",ic:"🏋️",ttl:"本日のトレ："+trName,cat:"tr",
+      desc:"「トレ」タブで種目を確認。各セット“あと2回”で止める。所要25〜35分。",pills:[["筋トレ","p-tr"]]}
     );
   }else{
     items.push(
-     {time:"日中",ic:"🚶",ttl:"アクティブレスト",cat:"tr",
-      desc:WEEK[dow].msg,pills:[["回復","p-tr"]]},
-     {time:"夕方",ic:"🥤",ttl:"ホエイ 2杯目",cat:"pro",
-      desc:"トレが無い日も1日2杯でタンパク質を確保。",pills:[["タンパク質","p-pro"]]}
+     {time:"夕方",ic:"🚶",ttl:"アクティブレスト",cat:"tr",
+      desc:WEEK[dow].msg,pills:[["回復","p-tr"]]}
     );
   }
   items.push(
-   {time:"夜・主食",ic:"🍽️",ttl:"メインの食事（1日1食）",cat:"food",
-    desc:"タンパク質60〜80g＋米しっかり＋良質な脂質＋野菜。増量はここで作る。詳細は「食事」タブ。",pills:[["高タンパク","p-food"],["増量カロリー","p-food"]]},
-   {time:"夜・主食",ic:"💊",ttl:"マルチ＋オメガ3＋ビタミンD",cat:"sup",
-    desc:"脂溶性なので食事と一緒に。マルチ規定量／オメガ3 1〜2g／D3 2000〜4000IU。",pills:[["食後サプリ","p-sup"]]},
-   {time:"就寝前",ic:"🌙",ttl:"マグネシウム（任意）＋睡眠",cat:"sup",
-    desc:"Mg 200〜400mgで睡眠の質UP。7〜8時間睡眠が筋肥大の最重要ポイント。",pills:[["回復","p-sup"]]}
+   {time:"19:00 夕食",ic:"🍽️",ttl:"メインの食事＋食後プロテイン",cat:"food",
+    desc:"タンパク質60〜80g＋米しっかり＋良質な脂質＋野菜。食後にホエイ1杯。トレ日はこれがトレ後補給を兼ねる。詳細は「食事」タブ。",pills:[["高タンパク","p-food"],["食後プロテイン","p-pro"]]},
+   {time:"19:00 夕食と一緒",ic:"💊",ttl:"オメガ3＋マルチ＋クレアチン3錠",cat:"sup",
+    desc:"脂溶性なので食事と一緒に吸収UP。オメガ3 1〜2g／マルチ規定量／クレアチン3錠（1日合計9錠）。",pills:[["食後サプリ","p-sup"],["クレアチン3錠","p-sup"]]},
+   {time:"22:30 就寝前",ic:"🌙",ttl:"マグネシウム＋睡眠",cat:"sup",
+    desc:"Mg 200〜400mg。夕食と時間をあけて吸収の競合を回避。7〜8時間睡眠が筋肥大の最重要ポイント。",pills:[["回復","p-sup"]]}
   );
   return items;
 }
 
-/* ===== 状態管理（localStorage・日付ごと） ===== */
-const todayKey = ()=>"fit_"+new Date().toISOString().slice(0,10);
-let state = JSON.parse(localStorage.getItem(todayKey())||"{}");
-function save(){localStorage.setItem(todayKey(),JSON.stringify(state));}
+/* ===== 状態管理（localStorage・日付ごと／区切りは朝5:00） ===== */
+function effDate(base){const d=base?new Date(base):new Date();d.setHours(d.getHours()-5);return d;} // 5時前は前日扱い
+function ymd(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function keyFor(d){return "fit_"+ymd(d);}
+let curKey = keyFor(effDate());
+let state = JSON.parse(localStorage.getItem(curKey)||"{}");
+function save(){localStorage.setItem(curKey,JSON.stringify(state));}
 
 function renderToday(){
-  const now=new Date();
-  const dow=now.getDay();
+  const eff=effDate();
+  const dow=eff.getDay();
   document.getElementById("dateLbl").textContent =
-    `${now.getMonth()+1}月${now.getDate()}日（${WD[dow]}）`;
+    `${eff.getMonth()+1}月${eff.getDate()}日（${WD[dow]}）・朝5時で更新`;
   const w=WEEK[dow];
   document.getElementById("dayTitle").textContent = w.rest? w.name : w.name;
   const tag=document.getElementById("dayTag");
@@ -386,8 +414,62 @@ function updateRing(total){
 }
 function resetDay(){state={};save();renderToday();}
 
+/* ===== 履歴タブ ===== */
+function renderHistory(){
+  const box=document.getElementById("histList");
+  const keys=Object.keys(localStorage).filter(k=>/^fit_\d{4}-\d{2}-\d{2}$/.test(k)).sort().reverse();
+  if(!keys.length){
+    box.innerHTML='<div class="note" style="text-align:center;color:var(--txt3);padding:34px 10px;line-height:1.8;">まだ記録がありません。<br>「今日」タブでチェックすると、ここに日ごとの達成記録が残ります。</div>';
+    return;
+  }
+  let h="";
+  keys.forEach(k=>{
+    const ds=k.slice(4);
+    const dt=new Date(ds+"T00:00:00");
+    const dow=dt.getDay();
+    const st=JSON.parse(localStorage.getItem(k)||"{}");
+    const items=buildTimeline(dow);
+    let done=0;items.forEach((it,i)=>{if(st["t"+i])done++;});
+    const total=items.length;const pct=total?Math.round(done/total*100):0;
+    const w=WEEK[dow];const typeLabel=w.rest?"休養":w.tag;
+    const isToday=(k===curKey);
+    h+=`<div class="hcard" onclick="toggleHist('${k}')">
+      <div class="hrow">
+        <div class="hpct" style="--p:${pct}%"><i>${pct}%</i></div>
+        <div class="hinfo">
+          <b>${dt.getMonth()+1}/${dt.getDate()}（${WD[dow]}）${isToday?'<span class="todaytag">今日</span>':''}</b>
+          <span>${typeLabel}・${done}/${total} 完了</span>
+        </div>
+        <div class="harr">▾</div>
+      </div>
+      <div class="hdetail" id="hd_${k}"></div>
+    </div>`;
+  });
+  box.innerHTML=h;
+}
+function toggleHist(k){
+  const el=document.getElementById("hd_"+k);
+  if(el.classList.contains("open")){el.classList.remove("open");el.innerHTML="";return;}
+  const ds=k.slice(4);const dt=new Date(ds+"T00:00:00");const dow=dt.getDay();
+  const st=JSON.parse(localStorage.getItem(k)||"{}");
+  const items=buildTimeline(dow);
+  let h="";
+  items.forEach((it,i)=>{
+    const done=!!st["t"+i];
+    h+=`<div class="hitem ${done?'on':''}"><span class="hchk">${done?'✓':'○'}</span><span class="ht">${it.time}　${it.ttl}</span></div>`;
+  });
+  el.innerHTML=h;el.classList.add("open");
+}
+
+/* アプリを開いたまま朝5時を跨いだら自動で新しい日へ */
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden)return;
+  const k=keyFor(effDate());
+  if(k!==curKey){curKey=k;state=JSON.parse(localStorage.getItem(curKey)||"{}");renderToday();}
+});
+
 /* ===== トレーニングタブ ===== */
-let selDay=new Date().getDay();
+let selDay=effDate().getDay();
 function renderWeek(){
   const wr=document.getElementById("weekrow");
   wr.innerHTML="";
@@ -427,6 +509,7 @@ document.querySelectorAll("nav button").forEach(b=>{
     document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
     b.classList.add("active");
     document.getElementById("page-"+b.dataset.p).classList.add("active");
+    if(b.dataset.p==="hist")renderHistory();
     window.scrollTo(0,0);
   };
 });
